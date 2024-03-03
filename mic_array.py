@@ -163,15 +163,6 @@ class MicArray:
         self.p.terminate()
 
 def main():
-
-    vad = EnergyVAD(
-        sample_rate: RESPEAKER_RATE = 16000,
-        frame_length: int = 25, # in milliseconds
-        frame_shift: int = 20, # in milliseconds
-        energy_threshold: float = 0.05, # you may need to adjust this value
-        pre_emphasis: float = 0.95
-    ) # default values are used here
-
     mic_array = MicArray()
     strip = apa102.APA102(num_led=NUM_LED, global_brightness=BRIGHTNESS, order=ORDER)
     
@@ -188,22 +179,20 @@ def main():
     # for loop interations changes as chunks are added, runs as long as audio comes in
     last_led = 0
     for chunk in mic_array.read_chunk():
-        # check if chunk represents human speech
-        if vad(chunk):
-            # convert that chunk from bytes to ints
-            # normalize to [-1,1]
-            chunk = np.frombuffer(chunk, np.int16)/32767
-            angle = mic_array.direction_gcc(chunk)
-            #angle = mic_array.direction_rms(chunk)
-            print(angle)
-            #light proper LED
-            #only change state when LED index changes from last iteration
-            led_idx = (round(angle/30)-2)%12
-            if(last_led != led_idx):
-                strip.clear_strip()
-                strip.set_pixel_rgb(led_idx, 0xFF0000, bright_percent = 1)
-                strip.show()
-            last_led = led_idx
+        # convert that chunk from bytes to ints
+        # normalize to [-1,1]
+        chunk = np.frombuffer(chunk, np.int16)/32767
+        angle = mic_array.direction_gcc(chunk)
+        #angle = mic_array.direction_rms(chunk)
+        print(angle)
+        #light proper LED
+        #only change state when LED index changes from last iteration
+        led_idx = (round(angle/30)-2)%12
+        if(last_led != led_idx):
+            strip.clear_strip()
+            strip.set_pixel_rgb(led_idx, 0xFF0000, bright_percent = 1)
+            strip.show()
+        last_led = led_idx
         
     
 if __name__ == '__main__':
