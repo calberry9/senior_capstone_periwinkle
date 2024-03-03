@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from pixel_ring import apa102
 from pixel_ring import pixel_ring
 from gpiozero import LED
-from vad import EnergyVAD
 
 RESPEAKER_RATE = 16000
 RESPEAKER_CHANNELS = 8
