@@ -167,9 +167,9 @@ class MicArray:
     
         # hijack keyboard interupt to close out additional allocations
         def signal_handler(sig, num):
-        print('Quit')
-        mic_array.close()
-        strip.clear_strip()
+            print('Quit')
+            mic_array.close()
+            strip.clear_strip()
 
         signal.signal(signal.SIGINT, signal_handler)
         # read_chunk yields a chunk of audio from the input queue
