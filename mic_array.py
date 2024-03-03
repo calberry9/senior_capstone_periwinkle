@@ -10,18 +10,18 @@ import matplotlib.pyplot as plt
 from pixel_ring import apa102
 from pixel_ring import pixel_ring
 from gpiozero import LED
-from vad import vad
- 
+from vad import EnergyVAD
+
 RESPEAKER_RATE = 16000
 RESPEAKER_CHANNELS = 8
 RESPEAKER_WIDTH = 2
 # run get_index.py to get respeaker device index
-RESPEAKER_INDEX = 2
+RESPEAKER_INDEX = 1
 CHUNK = 1024
 MAX_DIST = 0.097 # meters
 SPEED_SOUND = 343.2 # meters/sec
 #adjusted this a bit based on delay readings
-MAX_DELAY = 0.00029#MAX_DIST/SPEED_SOUND
+MAX_DELAY = 0.00029 #MAX_DIST/SPEED_SOUND
 NUM_LED = 12
 BRIGHTNESS = 10
 ORDER = "rbg"
@@ -163,6 +163,15 @@ class MicArray:
         self.p.terminate()
 
 def main():
+
+    vad = EnergyVAD(
+        sample_rate: RESPEAKER_RATE = 16000,
+        frame_length: int = 25, # in milliseconds
+        frame_shift: int = 20, # in milliseconds
+        energy_threshold: float = 0.05, # you may need to adjust this value
+        pre_emphasis: float = 0.95
+    ) # default values are used here
+
     mic_array = MicArray()
     strip = apa102.APA102(num_led=NUM_LED, global_brightness=BRIGHTNESS, order=ORDER)
     
@@ -180,7 +189,7 @@ def main():
     last_led = 0
     for chunk in mic_array.read_chunk():
         # check if chunk represents human speech
-        if vad.is_speech(chunk):
+        if vad(chunk):
             # convert that chunk from bytes to ints
             # normalize to [-1,1]
             chunk = np.frombuffer(chunk, np.int16)/32767
